@@ -116,3 +116,89 @@ export async function listContacts(limitCount: number): Promise<ContactRow[]> {
     };
   });
 }
+
+export type SupportMessageRow = {
+  id: string;
+  message: string;
+  name: string;
+  email: string;
+  showOnLP: boolean;
+  createdAt: Timestamp | null;
+};
+
+export async function saveSupportMessage(input: {
+  message: string;
+  name: string;
+  email: string;
+}): Promise<void> {
+  const db = getAdminDb();
+  if (!db) throw new Error("Firestore is not configured");
+  await db.collection("support_messages").add({
+    message: input.message,
+    name: input.name,
+    email: input.email,
+    showOnLP: false,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+}
+
+/** LP 表示承認済みのみ（createdAt 降順・最大 limitCount 件） */
+export async function listApprovedSupportMessages(
+  limitCount: number
+): Promise<SupportMessageRow[]> {
+  const db = getAdminDb();
+  if (!db) return [];
+  const snap = await db
+    .collection("support_messages")
+    .where("showOnLP", "==", true)
+    .orderBy("createdAt", "desc")
+    .limit(limitCount)
+    .get();
+  return snap.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      message: typeof d.message === "string" ? d.message : "",
+      name: typeof d.name === "string" ? d.name : "",
+      email: typeof d.email === "string" ? d.email : "",
+      showOnLP: d.showOnLP === true,
+      createdAt: (d.createdAt as Timestamp | undefined) ?? null,
+    };
+  });
+}
+
+export async function listAllSupportMessages(
+  limitCount: number
+): Promise<SupportMessageRow[]> {
+  const db = getAdminDb();
+  if (!db) return [];
+  const snap = await db
+    .collection("support_messages")
+    .orderBy("createdAt", "desc")
+    .limit(limitCount)
+    .get();
+  return snap.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      message: typeof d.message === "string" ? d.message : "",
+      name: typeof d.name === "string" ? d.name : "",
+      email: typeof d.email === "string" ? d.email : "",
+      showOnLP: d.showOnLP === true,
+      createdAt: (d.createdAt as Timestamp | undefined) ?? null,
+    };
+  });
+}
+
+export async function updateSupportMessageShowOnLP(
+  id: string,
+  showOnLP: boolean
+): Promise<boolean> {
+  const db = getAdminDb();
+  if (!db) return false;
+  const ref = db.collection("support_messages").doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return false;
+  await ref.update({ showOnLP });
+  return true;
+}
