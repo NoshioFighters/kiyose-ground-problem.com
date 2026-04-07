@@ -58,10 +58,10 @@ export function TweetFeed() {
           id="tweet-heading"
           className="text-center text-2xl font-bold text-body sm:text-3xl"
         >
-          最新の活動情報（X）
+          最新の活動情報
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-muted">
-          公式アカウントの最新投稿を表示します（最大6件）
+          @kiyoseground の最新投稿（最大6件）
         </p>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -76,9 +76,9 @@ export function TweetFeed() {
           {showPlaceholder && (
             <article className="rounded-xl border border-dashed border-border bg-white p-8 text-center shadow-md sm:col-span-2">
               <XLogo className="mx-auto h-8 w-8 text-slate-400" />
-              <p className="mt-4 font-medium text-body">準備中</p>
+              <p className="mt-4 font-medium text-body">活動開始準備中</p>
               <p className="mt-2 text-sm text-muted">
-                Xアカウントまたは API の設定が完了すると、ここに投稿が表示されます。
+                投稿が公開されると、ここに表示されます。
               </p>
             </article>
           )}

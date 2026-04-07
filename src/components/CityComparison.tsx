@@ -19,7 +19,7 @@ export function CityComparison() {
           id="compare-heading"
           className="text-center text-2xl font-bold text-body sm:text-3xl"
         >
-          近隣の市に同じルールはありません
+          近隣市の状況
         </h2>
         <div className="mt-10 overflow-x-auto rounded-xl border border-border bg-white shadow-sm">
           <table className="w-full min-w-[320px] text-left text-sm">
@@ -42,7 +42,7 @@ export function CityComparison() {
                   key={row.name}
                   className={
                     row.highlight
-                      ? "bg-red-50/80"
+                      ? "bg-slate-100"
                       : "border-t border-border odd:bg-white even:bg-slate-50/50"
                   }
                 >

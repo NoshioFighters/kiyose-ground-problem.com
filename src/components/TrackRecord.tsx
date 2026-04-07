@@ -47,7 +47,7 @@ export function TrackRecord() {
   }, []);
 
   const signatures = useAnimatedNumber(1042, 1600, visible);
-  const groups = useAnimatedNumber(8, 1200, visible);
+  const groups = useAnimatedNumber(7, 1200, visible);
 
   return (
     <section
@@ -60,31 +60,31 @@ export function TrackRecord() {
           id="track-heading"
           className="text-center text-2xl font-bold text-body sm:text-3xl"
         >
-          私たちはすでに行動しています
+          みなさんの声が集まっています
         </h2>
         <div className="mt-12 grid gap-8 sm:grid-cols-3">
           <div className="text-center">
             <p className="text-4xl font-bold tabular-nums text-accent sm:text-5xl">
               {signatures.toLocaleString("ja-JP")}
             </p>
-            <p className="mt-2 text-sm font-medium text-body">署名数</p>
+            <p className="mt-2 text-sm font-medium text-body">名の署名</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold tabular-nums text-body sm:text-5xl">
               {groups}
             </p>
-            <p className="mt-2 text-sm font-medium text-body">賛同団体数</p>
+            <p className="mt-2 text-sm font-medium text-body">チーム・団体が賛同</p>
           </div>
           <div className="text-center">
             <p className="text-lg font-bold leading-snug text-body sm:text-xl">
               2026年3月25日
             </p>
-            <p className="mt-2 text-sm font-medium text-body">市長への要望書提出日</p>
+            <p className="mt-2 text-sm font-medium text-body">市長へ要望書を提出</p>
           </div>
         </div>
         <div className="mt-10 flex justify-center">
-          <span className="inline-flex items-center rounded-full bg-accent/10 px-4 py-2 text-sm font-semibold text-accent ring-1 ring-accent/30">
-            現在、市からの回答を待っています（未回答）
+          <span className="inline-flex items-center rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-900 ring-1 ring-orange-200">
+            現在、市からの回答を待っています
           </span>
         </div>
       </div>

@@ -47,7 +47,7 @@ export function ContactForm() {
           id="contact-heading"
           className="text-center text-2xl font-bold text-body sm:text-3xl"
         >
-          ご意見・ご賛同はこちら
+          応援メッセージ・ご意見をお寄せください
         </h2>
         <p className="mt-3 text-center text-sm text-muted">
           いただいた内容は関係者のみが確認します。
@@ -58,7 +58,7 @@ export function ContactForm() {
             className="mt-8 rounded-lg border border-border bg-surface p-6 text-center text-sm font-medium text-body"
             role="status"
           >
-            ありがとうございました。メッセージを受け付けました。
+            ありがとうございます。メッセージを受け取りました。
           </p>
         ) : (
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
@@ -126,7 +126,7 @@ export function ContactForm() {
               disabled={status === "sending"}
               className="w-full rounded-lg bg-body py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
             >
-              {status === "sending" ? "送信中…" : "送信する"}
+              {status === "sending" ? "送信中…" : "送る"}
             </button>
           </form>
         )}

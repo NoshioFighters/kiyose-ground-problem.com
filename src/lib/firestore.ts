@@ -88,3 +88,31 @@ export async function saveContact(input: {
     createdAt: FieldValue.serverTimestamp(),
   });
 }
+
+export type ContactRow = {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: Timestamp | null;
+};
+
+export async function listContacts(limitCount: number): Promise<ContactRow[]> {
+  const db = getAdminDb();
+  if (!db) return [];
+  const snap = await db
+    .collection("contacts")
+    .orderBy("createdAt", "desc")
+    .limit(limitCount)
+    .get();
+  return snap.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      name: typeof d.name === "string" ? d.name : "",
+      email: typeof d.email === "string" ? d.email : "",
+      message: typeof d.message === "string" ? d.message : "",
+      createdAt: (d.createdAt as Timestamp | undefined) ?? null,
+    };
+  });
+}
