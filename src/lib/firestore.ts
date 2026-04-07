@@ -1,0 +1,90 @@
+import {
+  getApps,
+  initializeApp,
+  cert,
+  type App,
+} from "firebase-admin/app";
+import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
+import type { Tweet } from "./twitter";
+
+let adminApp: App | null = null;
+
+function getAdminApp(): App | null {
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (!projectId || !clientEmail || !privateKey) {
+    return null;
+  }
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  privateKey = privateKey.replace(/\\n/g, "\n");
+  if (!getApps().length) {
+    adminApp = initializeApp({
+      credential: cert({
+        projectId,
+        clientEmail,
+        privateKey,
+      }),
+    });
+  } else {
+    adminApp = getApps()[0]!;
+  }
+  return adminApp;
+}
+
+export function getAdminDb() {
+  const app = getAdminApp();
+  if (!app) return null;
+  return getFirestore(app);
+}
+
+const CACHE_DOC = "cache/tweets";
+
+export type TweetCachePayload = {
+  tweets: Tweet[];
+  updatedAt: Timestamp;
+};
+
+export async function getTweetCache(): Promise<TweetCachePayload | null> {
+  const db = getAdminDb();
+  if (!db) return null;
+  const snap = await db.doc(CACHE_DOC).get();
+  if (!snap.exists) return null;
+  const data = snap.data();
+  if (!data?.tweets || !data?.updatedAt) return null;
+  return {
+    tweets: data.tweets as Tweet[],
+    updatedAt: data.updatedAt as Timestamp,
+  };
+}
+
+export function isCacheFresh(updatedAt: Timestamp, maxAgeMs: number): boolean {
+  const ms = updatedAt.toMillis();
+  return Date.now() - ms < maxAgeMs;
+}
+
+export async function saveTweetCache(tweets: Tweet[]): Promise<void> {
+  const db = getAdminDb();
+  if (!db) return;
+  await db.doc(CACHE_DOC).set({
+    tweets,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+export async function saveContact(input: {
+  name: string;
+  email: string;
+  message: string;
+}): Promise<void> {
+  const db = getAdminDb();
+  if (!db) throw new Error("Firestore is not configured");
+  await db.collection("contacts").add({
+    name: input.name,
+    email: input.email,
+    message: input.message,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+}
