@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function isAdminLoginPath(pathname: string): boolean {
+  return (
+    pathname === "/admin/login" ||
+    pathname.startsWith("/admin/login/")
+  );
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isAdminPage =
-    pathname.startsWith("/admin") && pathname !== "/admin/login";
+  /** ログイン画面は常に通す（末尾スラッシュやマッチャーの解釈差で誤認証しない） */
+  if (isAdminLoginPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  const isAdminPage = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin/");
 
   if (!isAdminPage && !isAdminApi) {

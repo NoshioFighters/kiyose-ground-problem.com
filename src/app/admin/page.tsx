@@ -1,4 +1,8 @@
-import { listContacts, listAllSupportMessages } from "@/lib/firestore";
+import {
+  listContacts,
+  listAllSupportMessages,
+  type SupportMessageRow,
+} from "@/lib/firestore";
 import {
   SupportApprovalTable,
   type SupportRowClient,
@@ -6,9 +10,49 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const FETCH_TIMEOUT_MS = 25_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => {
+      reject(new Error("timeout"));
+    }, ms);
+    promise
+      .then((v) => {
+        clearTimeout(t);
+        resolve(v);
+      })
+      .catch((e) => {
+        clearTimeout(t);
+        reject(e);
+      });
+  });
+}
+
+function supportRowToClient(r: SupportMessageRow): SupportRowClient {
+  let createdAtIso: string | null = null;
+  if (r.createdAt && typeof r.createdAt.toDate === "function") {
+    try {
+      createdAtIso = r.createdAt.toDate().toISOString();
+    } catch {
+      createdAtIso = null;
+    }
+  }
+  return {
+    id: r.id,
+    message: r.message,
+    name: r.name,
+    email: r.email,
+    showOnLP: r.showOnLP,
+    createdAtIso,
+    postedToX: Boolean(r.postedToXAt),
+  };
+}
+
 function formatDate(ts: { toDate: () => Date } | null): string {
   if (!ts) return "—";
   try {
+    if (typeof ts.toDate !== "function") return "—";
     return ts.toDate().toLocaleString("ja-JP", {
       year: "numeric",
       month: "2-digit",
@@ -22,25 +66,31 @@ function formatDate(ts: { toDate: () => Date } | null): string {
 }
 
 export default async function AdminPage() {
-  const contacts = await listContacts(100);
-  const supportRows = await listAllSupportMessages(200);
+  let contacts: Awaited<ReturnType<typeof listContacts>> = [];
+  let supportRows: SupportMessageRow[] = [];
+  let loadError: string | null = null;
 
-  const supportClientRows: SupportRowClient[] = supportRows.map((r) => ({
-    id: r.id,
-    message: r.message,
-    name: r.name,
-    email: r.email,
-    showOnLP: r.showOnLP,
-    createdAtIso: r.createdAt ? r.createdAt.toDate().toISOString() : null,
-  }));
+  try {
+    const pair = await withTimeout(
+      Promise.all([listContacts(100), listAllSupportMessages(200)]),
+      FETCH_TIMEOUT_MS
+    );
+    contacts = pair[0];
+    supportRows = pair[1];
+  } catch (e) {
+    loadError =
+      e instanceof Error && e.message === "timeout"
+        ? "データの取得がタイムアウトしました。Firestore のネットワーク・環境変数（FIREBASE_*）を確認し、開発サーバーを再起動してください。"
+        : "データの読み込みに失敗しました。ターミナルのログを確認してください。";
+  }
+
+  const supportClientRows: SupportRowClient[] = supportRows.map(supportRowToClient);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto w-full min-w-0 max-w-7xl px-4 py-8 text-slate-900">
       <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
-            管理画面
-          </h1>
+          <h1 className="text-xl font-bold sm:text-2xl">管理画面</h1>
           <p className="mt-1 text-sm text-slate-600">
             お問い合わせと応援メッセージの確認・LP反映
           </p>
@@ -54,6 +104,15 @@ export default async function AdminPage() {
           </button>
         </form>
       </header>
+
+      {loadError && (
+        <div
+          className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          role="alert"
+        >
+          {loadError}
+        </div>
+      )}
 
       <section className="mb-14" aria-labelledby="contacts-section">
         <h2
@@ -133,6 +192,9 @@ export default async function AdminPage() {
         </h2>
         <p className="mb-4 text-sm text-slate-600">
           「LPに反映」をオンにすると、トップページの「みんなの応援メッセージ」に表示されます（最大200件まで読み込み）。
+          <br />
+          「XへPost」は環境変数で設定したアカウント（例: @kiyoseground）から API
+          投稿します。投稿後は同じ行では再投稿できません。
         </p>
         <SupportApprovalTable initialRows={supportClientRows} />
       </section>

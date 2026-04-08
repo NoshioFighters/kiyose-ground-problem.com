@@ -1,11 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import { landingSectionFrame } from "@/components/layout/LandingSection";
+import { cn } from "@/lib/cn";
+
+const BG_IMAGE = "/support-form-bg.jpg";
+
+function SupportSectionShell({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      className={cn(
+        "relative isolate min-w-0 overflow-hidden bg-surface",
+        landingSectionFrame
+      )}
+      aria-labelledby="support-form-heading"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${BG_IMAGE})` }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-white/80"
+        aria-hidden
+      />
+      <div className="relative z-10">{children}</div>
+    </section>
+  );
+}
 
 export function SupportForm() {
-  const [message, setMessage] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">(
     "idle"
   );
@@ -38,9 +69,9 @@ export function SupportForm() {
         return;
       }
       setStatus("ok");
-      setMessage("");
       setName("");
       setEmail("");
+      setMessage("");
     } catch {
       setErrMsg("送信に失敗しました。");
       setStatus("err");
@@ -49,11 +80,8 @@ export function SupportForm() {
 
   if (status === "ok") {
     return (
-      <section
-        className="border-b border-border bg-white px-4 py-12 sm:py-14"
-        aria-labelledby="support-form-heading"
-      >
-        <div className="mx-auto max-w-lg text-center">
+      <SupportSectionShell>
+        <div className="mx-auto w-full min-w-0 max-w-lg text-center">
           <h2
             id="support-form-heading"
             className="text-xl font-bold text-body sm:text-2xl"
@@ -61,22 +89,19 @@ export function SupportForm() {
             この活動を応援する
           </h2>
           <p
-            className="mt-6 rounded-lg border border-border bg-surface px-4 py-6 text-sm font-medium leading-relaxed text-body"
+            className="mt-6 rounded-lg border border-border bg-white/90 px-4 py-6 text-sm font-medium leading-relaxed text-body shadow-sm backdrop-blur-sm"
             role="status"
           >
             ありがとうございます！応援メッセージを受け取りました。
           </p>
         </div>
-      </section>
+      </SupportSectionShell>
     );
   }
 
   return (
-    <section
-      className="border-b border-border bg-white px-4 py-12 sm:py-14"
-      aria-labelledby="support-form-heading"
-    >
-      <div className="mx-auto max-w-lg">
+    <SupportSectionShell>
+      <div className="mx-auto w-full min-w-0 max-w-lg">
         <h2
           id="support-form-heading"
           className="text-center text-xl font-bold text-body sm:text-2xl"
@@ -87,26 +112,10 @@ export function SupportForm() {
           承認後、サイト上で紹介させていただく場合があります。
         </p>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-5">
-          <div>
-            <label
-              htmlFor="support-message"
-              className="block text-sm font-medium text-body"
-            >
-              応援メッセージ
-              <span className="text-accent">（必須）</span>
-            </label>
-            <textarea
-              id="support-message"
-              name="message"
-              required
-              rows={3}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="子どもたちへの応援メッセージをお書きください"
-              className="mt-1 w-full resize-y rounded-lg border border-border px-3 py-2 text-sm outline-none ring-accent/30 focus:border-accent focus:ring-2"
-            />
-          </div>
+        <form
+          onSubmit={onSubmit}
+          className="mt-8 space-y-5 rounded-xl border border-border bg-white/90 p-5 shadow-sm backdrop-blur-sm sm:p-6"
+        >
           <div>
             <label
               htmlFor="support-name"
@@ -124,7 +133,7 @@ export function SupportForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="お名前（例：山田太郎）"
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm outline-none ring-accent/30 focus:border-accent focus:ring-2"
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none ring-accent/30 focus:border-accent focus:ring-2"
             />
           </div>
           <div>
@@ -142,7 +151,26 @@ export function SupportForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="メールアドレス（任意）"
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm outline-none ring-accent/30 focus:border-accent focus:ring-2"
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none ring-accent/30 focus:border-accent focus:ring-2"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="support-message"
+              className="block text-sm font-medium text-body"
+            >
+              応援メッセージ
+              <span className="text-accent">（必須）</span>
+            </label>
+            <textarea
+              id="support-message"
+              name="message"
+              required
+              rows={3}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="子どもたちへの応援メッセージをお書きください"
+              className="mt-1 w-full resize-y rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none ring-accent/30 focus:border-accent focus:ring-2"
             />
           </div>
           {status === "err" && errMsg && (
@@ -159,6 +187,6 @@ export function SupportForm() {
           </button>
         </form>
       </div>
-    </section>
+    </SupportSectionShell>
   );
 }

@@ -3,9 +3,23 @@
 @tailwind utilities;
 
 html {
+  width: 100%;
+  max-width: 100%;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
-  @apply text-body antialiased;
+  @apply min-w-0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@layer base {
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
 }

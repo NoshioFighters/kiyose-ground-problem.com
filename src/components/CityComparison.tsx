@@ -1,3 +1,8 @@
+import {
+  LandingSection,
+  lpSectionTitleClass,
+} from "@/components/layout/LandingSection";
+
 const rows = [
   { name: "清瀬市", game: "❌ 禁止", parking: "❌ 1台のみ", highlight: true },
   { name: "東久留米市", game: "✅ 可能", parking: "✅ 制限なし", highlight: false },
@@ -10,18 +15,12 @@ const rows = [
 
 export function CityComparison() {
   return (
-    <section
-      className="border-b border-border bg-surface px-4 py-14 sm:py-16"
-      aria-labelledby="compare-heading"
-    >
-      <div className="mx-auto max-w-4xl">
-        <h2
-          id="compare-heading"
-          className="text-center text-2xl font-bold text-body sm:text-3xl"
-        >
+    <LandingSection tone="surface" aria-labelledby="compare-heading">
+      <div className="mx-auto w-full min-w-0 max-w-4xl">
+        <h2 id="compare-heading" className={lpSectionTitleClass}>
           近隣市の状況
         </h2>
-        <div className="mt-10 overflow-x-auto rounded-xl border border-border bg-white shadow-sm">
+        <div className="mt-10 min-w-0 overflow-x-auto rounded-xl border border-border bg-white shadow-sm">
           <table className="w-full min-w-[320px] text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-surface">
@@ -46,10 +45,7 @@ export function CityComparison() {
                       : "border-t border-border odd:bg-white even:bg-slate-50/50"
                   }
                 >
-                  <th
-                    scope="row"
-                    className="px-4 py-3 font-medium text-body"
-                  >
+                  <th scope="row" className="px-4 py-3 font-medium text-body">
                     {row.name}
                   </th>
                   <td className="px-4 py-3 text-muted">{row.game}</td>
@@ -62,7 +58,10 @@ export function CityComparison() {
         <p className="mt-4 text-center text-xs text-muted sm:text-sm">
           都内多摩地域において同様のルールを設けている市は確認されていません
         </p>
+        <p className="mt-2 text-center text-xs text-muted">
+          ※ 各市のHP等調査の結果
+        </p>
       </div>
-    </section>
+    </LandingSection>
   );
 }

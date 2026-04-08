@@ -9,6 +9,7 @@ export type SupportRowClient = {
   email: string;
   showOnLP: boolean;
   createdAtIso: string | null;
+  postedToX: boolean;
 };
 
 function formatDate(iso: string | null): string {
@@ -37,25 +38,73 @@ export function SupportApprovalTable({
   initialRows: SupportRowClient[];
 }) {
   const [rows, setRows] = useState(initialRows);
+  const [postingId, setPostingId] = useState<string | null>(null);
 
   async function onToggle(id: string, next: boolean, previous: boolean) {
     setRows((r) =>
       r.map((row) => (row.id === id ? { ...row, showOnLP: next } : row))
     );
     try {
-      const res = await fetch(`/api/admin/support/${id}`, {
+      const res = await fetch(`/api/admin/support/${encodeURIComponent(id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ showOnLP: next }),
         credentials: "same-origin",
       });
       if (!res.ok) {
-        throw new Error("patch failed");
+        const detail = await res.text().catch(() => "");
+        throw new Error(detail || `HTTP ${res.status}`);
       }
-    } catch {
+    } catch (e) {
+      console.error("[SupportApprovalTable] PATCH failed", e);
       setRows((r) =>
         r.map((row) => (row.id === id ? { ...row, showOnLP: previous } : row))
       );
+      window.alert(
+        "LPへの反映を保存できませんでした。ネットワークまたはログイン状態を確認し、もう一度お試しください。"
+      );
+    }
+  }
+
+  async function onPostToX(id: string) {
+    setPostingId(id);
+    try {
+      const res = await fetch(
+        `/api/admin/support/${encodeURIComponent(id)}/post-x`,
+        {
+          method: "POST",
+          credentials: "same-origin",
+        }
+      );
+      let data: {
+        ok?: boolean;
+        alreadyPosted?: boolean;
+        error?: string;
+      } = {};
+      try {
+        data = (await res.json()) as typeof data;
+      } catch {
+        /* ignore */
+      }
+      if (!res.ok) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+      if (data.ok) {
+        setRows((r) =>
+          r.map((row) =>
+            row.id === id ? { ...row, postedToX: true } : row
+          )
+        );
+      }
+    } catch (e) {
+      console.error("[SupportApprovalTable] post-x failed", e);
+      window.alert(
+        e instanceof Error
+          ? e.message
+          : "X への投稿に失敗しました。環境変数・X の開発者設定を確認してください。"
+      );
+    } finally {
+      setPostingId(null);
     }
   }
 
@@ -69,7 +118,7 @@ export function SupportApprovalTable({
 
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table className="w-full min-w-[720px] text-left text-sm">
+      <table className="w-full min-w-[880px] text-left text-sm">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50">
             <th scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">
@@ -86,6 +135,9 @@ export function SupportApprovalTable({
             </th>
             <th scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">
               LPに反映
+            </th>
+            <th scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">
+              XへPost
             </th>
           </tr>
         </thead>
@@ -127,6 +179,26 @@ export function SupportApprovalTable({
                     {row.showOnLP ? "表示中" : "非表示"}
                   </span>
                 </label>
+              </td>
+              <td className="px-4 py-3">
+                {row.postedToX ? (
+                  <span
+                    className="inline-flex rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500"
+                    aria-label="X へは投稿済みです"
+                  >
+                    投稿済
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={postingId === row.id}
+                    onClick={() => onPostToX(row.id)}
+                    aria-busy={postingId === row.id}
+                  >
+                    {postingId === row.id ? "投稿中…" : "Post"}
+                  </button>
+                )}
               </td>
             </tr>
           ))}

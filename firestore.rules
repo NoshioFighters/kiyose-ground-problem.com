@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // このリポジトリでは主に Admin SDK からアクセスします。
+    // ルールを本番用に変える場合は Firebase コンソールの内容と整合させてください。
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,19 +1,22 @@
+import {
+  LandingSection,
+  lpSectionTitleClass,
+} from "@/components/layout/LandingSection";
+
 export function ProblemSection() {
   return (
-    <section
+    <LandingSection
       id="problem"
-      className="scroll-mt-20 border-b border-border bg-white px-4 py-14 sm:py-16"
+      tone="white"
       aria-labelledby="problem-heading"
+      className="scroll-mt-20"
     >
-      <div className="mx-auto max-w-4xl">
-        <h2
-          id="problem-heading"
-          className="text-center text-2xl font-bold text-body sm:text-3xl"
-        >
+      <div className="mx-auto w-full min-w-0 max-w-4xl">
+        <h2 id="problem-heading" className={lpSectionTitleClass}>
           何が変わったのか
         </h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          <article className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <div className="mt-10 grid min-w-0 gap-6 sm:grid-cols-2">
+          <article className="min-w-0 rounded-xl border border-border bg-surface p-6 shadow-sm">
             <h3 className="text-lg font-bold text-body">
               対外試合ができなくなりました
             </h3>
@@ -21,7 +24,7 @@ export function ProblemSection() {
               2026年2月の通達により、各小中学校に登録されていない外部チームを招いての試合が禁止されました。子どもたちが他チームと切磋琢磨する機会が失われます。
             </p>
           </article>
-          <article className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+          <article className="min-w-0 rounded-xl border border-border bg-surface p-6 shadow-sm">
             <h3 className="text-lg font-bold text-body">
               駐車場が1台しか使えません
             </h3>
@@ -31,6 +34,6 @@ export function ProblemSection() {
           </article>
         </div>
       </div>
-    </section>
+    </LandingSection>
   );
 }

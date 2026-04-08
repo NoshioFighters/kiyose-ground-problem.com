@@ -1,22 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { isAdminSession } from "@/lib/admin-auth";
 import { updateSupportMessageShowOnLP, getAdminDb } from "@/lib/firestore";
 
 export const dynamic = "force-dynamic";
-
-function isAdmin(): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  const token = cookies().get("admin_token");
-  return Boolean(
-    adminPassword && token && token.value === adminPassword
-  );
-}
 
 export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  if (!isAdmin()) {
+  if (!isAdminSession()) {
     return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
   }
   if (!getAdminDb()) {
@@ -51,6 +44,8 @@ export async function PATCH(
   if (!ok) {
     return NextResponse.json({ error: "ドキュメントが見つかりません。" }, { status: 404 });
   }
+
+  revalidatePath("/");
 
   return NextResponse.json({ ok: true, showOnLP });
 }

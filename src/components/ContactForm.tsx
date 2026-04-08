@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import {
+  LandingSection,
+  lpSectionTitleClass,
+} from "@/components/layout/LandingSection";
 
 export function ContactForm() {
   const [name, setName] = useState("");
@@ -38,16 +42,10 @@ export function ContactForm() {
   }
 
   return (
-    <section
-      className="border-b border-border bg-white px-4 py-14 sm:py-16"
-      aria-labelledby="contact-heading"
-    >
-      <div className="mx-auto max-w-lg">
-        <h2
-          id="contact-heading"
-          className="text-center text-2xl font-bold text-body sm:text-3xl"
-        >
-          応援メッセージ・ご意見をお寄せください
+    <LandingSection tone="white" aria-labelledby="contact-heading">
+      <div className="mx-auto w-full min-w-0 max-w-lg">
+        <h2 id="contact-heading" className={lpSectionTitleClass}>
+          ご意見をお寄せください
         </h2>
         <p className="mt-3 text-center text-sm text-muted">
           いただいた内容は関係者のみが確認します。
@@ -131,6 +129,6 @@ export function ContactForm() {
           </form>
         )}
       </div>
-    </section>
+    </LandingSection>
   );
 }

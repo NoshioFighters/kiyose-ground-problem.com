@@ -1,11 +1,8 @@
 export function Footer() {
   return (
     <footer className="bg-hero px-4 py-12 text-slate-300">
-      <div className="mx-auto max-w-4xl text-center text-sm leading-relaxed">
-        <p className="font-semibold text-white">
-          子どもたちのスポーツ環境を考える保護者・指導者の会
-        </p>
-        <p className="mt-4">
+      <div className="mx-auto w-full min-w-0 max-w-4xl text-center text-sm leading-relaxed">
+        <p>
           <a
             href="mailto:voice@kiyose-ground-problem.com"
             className="text-accent underline-offset-2 hover:underline"
@@ -13,7 +10,7 @@ export function Footer() {
             voice@kiyose-ground-problem.com
           </a>
         </p>
-        <p className="mt-3">
+        <p className="mt-4">
           <a
             href="https://x.com/kiyoseground"
             target="_blank"

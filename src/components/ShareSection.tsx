@@ -1,5 +1,9 @@
 import { getShareIntentUrl } from "@/lib/share";
 
+/**
+ * シェアCTAはヒーローと同系色の濃紺帯（仕様どおりの強調ブロック）。
+ * 本文セクションの白／薄いグレー交互とは別デザインにします。
+ */
 export function ShareSection() {
   const url = getShareIntentUrl();
 
@@ -8,7 +12,7 @@ export function ShareSection() {
       className="border-b border-border bg-hero px-4 py-14 text-white sm:py-16"
       aria-labelledby="share-heading"
     >
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto w-full min-w-0 max-w-2xl text-center">
         <h2
           id="share-heading"
           className="text-2xl font-bold sm:text-3xl"
@@ -22,7 +26,7 @@ export function ShareSection() {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center justify-center rounded-lg bg-accent px-8 py-3.5 text-sm font-semibold shadow-lg transition hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="mt-8 inline-flex items-center justify-center rounded-lg bg-accent px-8 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           Xでシェアする
         </a>
