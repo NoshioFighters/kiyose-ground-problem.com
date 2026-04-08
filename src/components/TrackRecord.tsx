@@ -33,11 +33,6 @@ export function TrackRecord() {
             <p className="mt-2 text-sm font-medium text-body">市長へ要望書を提出</p>
           </div>
         </div>
-        <div className="mt-10 flex justify-center">
-          <span className="inline-flex items-center rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-900 ring-1 ring-orange-200">
-            現在、市からの回答を待っています
-          </span>
-        </div>
       </div>
     </LandingSection>
   );
