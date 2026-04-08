@@ -17,7 +17,7 @@ export function ProblemSection() {
         </h2>
         <div className="mt-10 grid min-w-0 gap-6 sm:grid-cols-2">
           <article className="min-w-0 rounded-xl border border-border bg-surface p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-body">
+            <h3 className="text-lg font-bold text-accent">
               対外試合ができなくなりました
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
@@ -25,7 +25,7 @@ export function ProblemSection() {
             </p>
           </article>
           <article className="min-w-0 rounded-xl border border-border bg-surface p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-body">
+            <h3 className="text-lg font-bold text-accent">
               駐車場が1台しか使えません
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">

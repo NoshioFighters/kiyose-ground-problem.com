@@ -1,18 +1,11 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import {
   LandingSection,
   lpSectionTitleClass,
 } from "@/components/layout/LandingSection";
 import { formatRelativeTimeJa } from "@/lib/time";
+import { getTweetsForLp } from "@/lib/tweets-lp";
 
-type Tweet = {
-  id: string;
-  text: string;
-  created_at: string;
-  public_metrics: { like_count: number; retweet_count: number };
-};
+const X_PROFILE_URL = "https://x.com/kiyoseground";
 
 function XLogo({ className }: { className?: string }) {
   return (
@@ -27,30 +20,12 @@ function XLogo({ className }: { className?: string }) {
   );
 }
 
-export function TweetFeed() {
-  const [tweets, setTweets] = useState<Tweet[] | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/tweets");
-        const data = (await res.json()) as { tweets?: Tweet[] };
-        if (!cancelled) setTweets(data.tweets ?? []);
-      } catch {
-        if (!cancelled) setTweets([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const list = tweets ?? [];
-  const showPlaceholder = !loading && list.length === 0;
+export async function TweetFeed() {
+  const { tweets, notice, degraded } = await getTweetsForLp();
+  const list = tweets;
+  const showPlaceholder = list.length === 0;
+  const showDevNotice =
+    process.env.NODE_ENV === "development" && Boolean(notice);
 
   return (
     <LandingSection tone="white" aria-labelledby="tweet-heading">
@@ -59,35 +34,66 @@ export function TweetFeed() {
           最新の活動情報
         </h2>
         <p className="mx-auto mt-3 w-full min-w-0 max-w-2xl text-center text-sm text-muted">
-          @kiyoseground の最新投稿（最大6件）
+          <a
+            href={X_PROFILE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-accent underline-offset-2 hover:underline"
+          >
+            @kiyoseground
+          </a>
+          の最新投稿（最大6件）
         </p>
         <p className="mx-auto mt-2 w-full min-w-0 max-w-2xl break-words text-pretty text-center text-sm font-medium leading-relaxed text-body">
           #監督野球ができるよう市長にお願いしてくる
         </p>
+        {degraded && !showPlaceholder && (
+          <p
+            className="mx-auto mt-3 max-w-2xl text-center text-xs text-amber-800"
+            role="status"
+          >
+            一時的にキャッシュ済みの投稿を表示しています。
+          </p>
+        )}
+        {showDevNotice && (
+          <p
+            className="mx-auto mt-3 max-w-2xl rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-950"
+            role="note"
+          >
+            {notice}
+          </p>
+        )}
 
         <div className="mt-10 min-w-0">
-          {loading && (
-            <div
-              className="rounded-xl border border-dashed border-border bg-white p-8 text-center shadow-sm"
-              role="status"
-              aria-live="polite"
-            >
-              <div className="mx-auto mb-4 h-8 w-8 animate-pulse rounded bg-slate-200" />
-              <p className="text-sm font-medium text-muted">投稿を読み込んでいます…</p>
-            </div>
-          )}
-
           {showPlaceholder && (
             <article className="rounded-xl border border-dashed border-border bg-white p-8 text-center shadow-sm">
-              <XLogo className="mx-auto h-8 w-8 text-slate-400" />
+              <a
+                href={X_PROFILE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-slate-400 transition hover:text-body"
+                aria-label="@kiyoseground を X で開く"
+              >
+                <XLogo className="mx-auto h-8 w-8" />
+              </a>
               <p className="mt-4 font-medium text-body">活動開始準備中</p>
               <p className="mt-2 text-sm text-muted">
                 投稿が公開されると、ここに表示されます。
               </p>
+              <p className="mt-4 text-sm">
+                <a
+                  href={X_PROFILE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-accent hover:underline"
+                >
+                  X で @kiyoseground をフォローする
+                </a>
+              </p>
             </article>
           )}
 
-          {!loading && list.length > 0 && (
+          {list.length > 0 && (
             <div className="grid min-w-0 gap-4 sm:grid-cols-2">
               {list.map((t) => (
                 <article
@@ -110,8 +116,8 @@ export function TweetFeed() {
                     {formatRelativeTimeJa(t.created_at)}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted">
-                    <span>いいね {t.public_metrics.like_count}</span>
-                    <span>リポスト {t.public_metrics.retweet_count}</span>
+                    <span>いいね {t.public_metrics?.like_count ?? 0}</span>
+                    <span>リポスト {t.public_metrics?.retweet_count ?? 0}</span>
                   </div>
                   <a
                     href={`https://x.com/i/web/status/${t.id}`}
