@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
+import { publicRedirectUrl } from "@/lib/request-public-origin";
 
 export const dynamic = "force-dynamic";
 
 const COOKIE_NAME = "admin_token";
 
 export async function POST(req: Request) {
-  const url = new URL(req.url);
-  const res = NextResponse.redirect(new URL("/admin/login", url.origin));
+  const res = NextResponse.redirect(
+    publicRedirectUrl("/admin/login", req.headers, req.url)
+  );
   res.cookies.set(COOKIE_NAME, "", {
     httpOnly: true,
     sameSite: "strict",

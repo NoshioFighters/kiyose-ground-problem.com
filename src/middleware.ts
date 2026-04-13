@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { publicRedirectUrl } from "@/lib/request-public-origin";
 
 function isAdminLoginPath(pathname: string): boolean {
   return (
@@ -34,10 +35,9 @@ export function middleware(request: NextRequest) {
           { status: 503 }
         );
       }
-      const url = request.nextUrl.clone();
-      url.pathname = "/maintenance";
-      url.search = "";
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(
+        publicRedirectUrl("/maintenance", request.headers, request.url)
+      );
     }
   }
 
@@ -59,7 +59,9 @@ export function middleware(request: NextRequest) {
     if (isAdminApi) {
       return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    return NextResponse.redirect(
+      publicRedirectUrl("/admin/login", request.headers, request.url)
+    );
   }
 
   return NextResponse.next();

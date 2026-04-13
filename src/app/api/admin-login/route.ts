@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { publicRedirectUrl } from "@/lib/request-public-origin";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,9 @@ const COOKIE_NAME = "admin_token";
 export async function POST(req: Request) {
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminPassword) {
-    return NextResponse.redirect(new URL("/admin/login?error=server", req.url));
+    return NextResponse.redirect(
+      publicRedirectUrl("/admin/login?error=server", req.headers, req.url)
+    );
   }
 
   let password = "";
@@ -25,10 +28,14 @@ export async function POST(req: Request) {
   }
 
   if (password !== adminPassword) {
-    return NextResponse.redirect(new URL("/admin/login?error=auth", req.url));
+    return NextResponse.redirect(
+      publicRedirectUrl("/admin/login?error=auth", req.headers, req.url)
+    );
   }
 
-  const res = NextResponse.redirect(new URL("/admin", req.url));
+  const res = NextResponse.redirect(
+    publicRedirectUrl("/admin", req.headers, req.url)
+  );
   res.cookies.set(COOKIE_NAME, adminPassword, {
     httpOnly: true,
     sameSite: "strict",
