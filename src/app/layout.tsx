@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import Script from "next/script";
+import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { GaPageViewTracker } from "@/components/ga-page-view-tracker";
+import {
+  seoDescription,
+  seoOgDescription,
+  seoOgImageHeight,
+  seoOgImagePath,
+  seoOgImageWidth,
+  seoOgTitle,
+  seoSiteName,
+  seoTitle,
+} from "@/lib/seo";
+import { getSiteOrigin } from "@/lib/site";
 import "./globals.css";
 
 const notoSansJp = Noto_Sans_JP({
@@ -17,16 +29,36 @@ const gaMeasurementId =
   process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID?.trim() ||
   "";
 
+const siteOrigin = getSiteOrigin();
+
 export const metadata: Metadata = {
-  title: "清瀬の子どもたちに野球を続けさせてあげたい | 清瀬市グランド問題",
-  description:
-    "2026年2月の通達による対外試合の制限と駐車1台制限について、市民の理解と対話を求めて情報を発信しています。1,042名の署名と要望書提出後、回答を待っています。",
+  metadataBase: new URL(siteOrigin),
+  title: seoTitle,
+  description: seoDescription,
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "清瀬の子どもたちに、野球を続けさせてあげたい。",
-    description:
-      "7チーム・団体、1,042名の声。子どもたちのスポーツ環境を一緒に考えてください。",
+    title: seoOgTitle,
+    description: seoOgDescription,
+    url: "/",
+    siteName: seoSiteName,
     locale: "ja_JP",
     type: "website",
+    images: [
+      {
+        url: seoOgImagePath,
+        width: seoOgImageWidth,
+        height: seoOgImageHeight,
+        alt: seoOgTitle,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seoOgTitle,
+    description: seoOgDescription,
+    images: [seoOgImagePath],
   },
 };
 
@@ -59,6 +91,7 @@ export default function RootLayout({
       <body
         className={`flex min-h-screen w-full min-w-0 flex-col bg-white text-body antialiased ${notoSansJp.className}`}
       >
+        <SiteJsonLd />
         {children}
         {gaMeasurementId ? (
           <GaPageViewTracker gaId={gaMeasurementId} />
