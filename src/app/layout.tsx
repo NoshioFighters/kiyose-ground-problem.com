@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
+import Script from "next/script";
+import { GaPageViewTracker } from "@/components/ga-page-view-tracker";
 import "./globals.css";
 
 const notoSansJp = Noto_Sans_JP({
@@ -9,6 +11,11 @@ const notoSansJp = Noto_Sans_JP({
   display: "swap",
   adjustFontFallback: true,
 });
+
+const gaMeasurementId =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ||
+  process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID?.trim() ||
+  "";
 
 export const metadata: Metadata = {
   title: "清瀬の子どもたちに野球を続けさせてあげたい | 清瀬市グランド問題",
@@ -30,10 +37,32 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={notoSansJp.variable}>
+      <head>
+        {gaMeasurementId ? (
+          <>
+            <Script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-tag-gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaMeasurementId}');
+              `}
+            </Script>
+          </>
+        ) : null}
+      </head>
       <body
         className={`flex min-h-screen w-full min-w-0 flex-col bg-white text-body antialiased ${notoSansJp.className}`}
       >
         {children}
+        {gaMeasurementId ? (
+          <GaPageViewTracker gaId={gaMeasurementId} />
+        ) : null}
       </body>
     </html>
   );
